@@ -25,7 +25,7 @@ heroImage.onload = function() {
 };
 heroImage.src = "img/hero.png";
 
-//Set imagem de mosntro
+//Set imagem de monstro
 var monsterReady = false;
 var monsterImage = new Image();
 monsterImage.onload = function() {
@@ -40,6 +40,14 @@ bad_monsterImage.onload = function() {
     bad_monsterReady = true;
 };
 bad_monsterImage.src = "img/bad_monster.png";
+
+//Set imagem da arma
+var espadaReady = false;
+var espadaImage = new Image();
+espadaImage.onload = function() {
+    espadaReady = true;
+};
+espadaImage.src = "img/espada.png";
 
 //Objetos do jogo
 var hero = {
@@ -59,6 +67,12 @@ var bad_monster = {
     x: 32 + (Math.random() * (canvas.width - 64)),
     y: 32 + (Math.random() * (canvas.height - 64))
 };
+
+var espada = {
+    x: 32 + (Math.random() * (canvas.width - 64)),
+    y: 32 + (Math.random() * (canvas.height - 64)),
+    isSet: false
+}
 
 var monstersCaught = 0;
 
@@ -108,6 +122,10 @@ var update = function(modifier) {
         }
     }
 
+    if(32 in keysDown && espada.isSet) {
+        espada.rotate(0.5);
+    }
+
     //Jogador capturou monstro?
     if (
         hero.x <= (monster.x + 32)
@@ -115,11 +133,15 @@ var update = function(modifier) {
         && hero.y <= (monster.y + 32)
         && monster.y <= (hero.y + 32)
     ) {
-        ++monstersCaught;
-        reset();
+        if (espada.isSet) {
+            ++monstersCaught;
+            reset();
+        } else {
+            request = false;
+        }
     }
 
-  //Jogador foi morto?
+  //Jogador matou monstro ou foi morto?
     if (
         hero.x <= (bad_monster.x + 32)
         && bad_monster.x <= (hero.x + 32)
@@ -127,6 +149,21 @@ var update = function(modifier) {
         && bad_monster.y <= (hero.y + 32)
     ) {
         request = false;
+    }
+
+    //Jogador pega espada
+    if (
+        hero.x <= (espada.x + 32)
+        && espada.x <= (hero.x + 32)
+        && hero.y <= (espada.y + 32)
+        && espada.y <= (hero.y + 32)
+    ) {
+        espada.isSet = true;
+    }
+
+    if (espada.isSet) {
+        espada.x = hero.x + 25;
+        espada.y = hero.y + 5;
     }
 }
 
@@ -168,6 +205,10 @@ var render = function() {
 
     if(bad_monsterReady) {
         ctx.drawImage(bad_monsterImage, bad_monster.x, bad_monster.y);
+    }
+
+    if(espadaReady) {
+        ctx.drawImage(espadaImage,espada.x, espada.y);
     }
 
     //Pontuação
